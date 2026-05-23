@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Facebook AI Chatbot — Free Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --accent: #1877F2;
+    --accent2: #00d4aa;
+    --text: #f0f0f8;
+    --muted: #8888a8;
+    --danger: #ff4f6a;
+    --success: #00d4aa;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(24,119,242,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(24,119,242,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 3rem 0 2.5rem; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(24,119,242,0.12); border: 1px solid rgba(24,119,242,0.3);
+    color: #6ab0ff; font-size: 12px; font-weight: 500; letter-spacing: 0.06em;
+    padding: 5px 14px; border-radius: 100px; text-transform: uppercase; margin-bottom: 1.5rem;
+  }
+  .hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: #6ab0ff; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .hero h1 { font-family: var(--font-head); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.1; margin-bottom: 1rem; }
+  .hero h1 .blue { color: var(--accent); }
+  .hero h1 .teal { color: var(--accent2); }
+  .hero p { color: var(--muted); font-size: 16px; max-width: 520px; margin: 0 auto; }
+
+  /* STEPS ROW */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 2.5rem 0; }
+  .step {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem 1.25rem;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .step-num { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1; flex-shrink: 0; margin-top: 2px; }
+  .step-body h3 { font-family: var(--font-head); font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .step-body p { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 5px; margin-bottom: 1.5rem; }
+  .tab {
+    flex: 1; padding: 9px; font-family: var(--font-head); font-size: 13px; font-weight: 600;
+    background: transparent; border: none; border-radius: 10px; color: var(--muted);
+    cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
+
+  /* CARDS */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem;
+  }
+  .card-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .card-title svg { opacity: 0.6; }
+
+  /* FORM */
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: 500; letter-spacing: 0.03em; }
+  input[type="text"], input[type="password"], textarea, select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border2);
+    border-radius: var(--radius-sm); padding: 10px 14px; color: var(--text);
+    font-family: var(--font-body); font-size: 14px; transition: border-color 0.2s;
+    outline: none;
+  }
+  input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(24,119,242,0.1);
+  }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .form-row { margin-bottom: 1rem; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+
+  /* FAQ */
+  .faq-item {
+    display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center;
+    padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+  }
+  .faq-item input { background: transparent; border: none; padding: 4px 6px; font-size: 13px; }
+  .faq-item input:focus { border: 1px solid var(--border2); border-radius: 4px; }
+  .faq-sep { font-size: 11px; color: var(--muted); text-align: center; }
+  .btn-icon {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2);
+    background: transparent; color: var(--muted); cursor: pointer; display: flex;
+    align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .btn-icon:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px;
+    border-radius: var(--radius-sm); font-family: var(--font-head); font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #2486ff; transform: translateY(-1px); }
+  .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text); }
+  .btn-outline:hover { background: var(--surface2); }
+  .btn-teal { background: var(--accent2); color: #000; }
+  .btn-teal:hover { opacity: 0.88; }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+  .btn-add { background: rgba(24,119,242,0.1); border: 1px solid rgba(24,119,242,0.25); color: #6ab0ff; padding: 8px 16px; border-radius: var(--radius-sm); font-family: var(--font-head); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-add:hover { background: rgba(24,119,242,0.2); }
+
+  /* PANEL */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* CHAT DEMO */
+  .chat-window {
+    background: #f0f2f5; border-radius: var(--radius); overflow: hidden;
+    display: flex; flex-direction: column; height: 420px;
+  }
+  .chat-header {
+    background: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .chat-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; flex-shrink: 0; }
+  .chat-info h4 { font-size: 14px; font-weight: 600; color: #1c1e21; line-height: 1.2; }
+  .chat-info p { font-size: 12px; color: #65676b; }
+  .online-dot { width: 8px; height: 8px; border-radius: 50%; background: #31a24c; margin-left: auto; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+  .msg-wrap { display: flex; align-items: flex-end; gap: 6px; }
+  .msg-wrap.user { flex-direction: row-reverse; }
+  .msg-avatar { width: 24px; height: 24px; border-radius: 50%; background: #ccc; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .bubble {
+    max-width: 65%; padding: 9px 13px; border-radius: 18px; font-size: 14px; line-height: 1.45;
+  }
+  .bubble.bot { background: #fff; color: #1c1e21; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .bubble.user { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+  .chat-input-bar {
+    background: #fff; padding: 10px 12px; display: flex; gap: 8px; align-items: center;
+    border-top: 1px solid #e0e0e0;
+  }
+  .chat-input-bar input {
+    flex: 1; background: #f0f2f5; border: none; border-radius: 20px; padding: 8px 14px;
+    font-size: 14px; color: #1c1e21; font-family: var(--font-body);
+  }
+  .chat-input-bar input:focus { outline: none; }
+  .send-btn {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--accent); border: none;
+    color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.2s;
+  }
+  .send-btn:hover { opacity: 0.85; }
+  .typing { display: flex; align-items: center; gap: 4px; padding: 9px 13px; background: #fff; border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; }
+  .typing span { width: 7px; height: 7px; border-radius: 50%; background: #aaa; animation: blink 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-4px)} }
+
+  /* CODE BLOCK */
+  .code-wrap { position: relative; }
+  .code-block {
+    background: #0d0d14; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem; font-family: 'Courier New', monospace; font-size: 12.5px;
+    line-height: 1.7; color: #c9d1d9; overflow-x: auto; white-space: pre;
+  }
+  .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--surface2); border: 1px solid var(--border2); color: var(--muted);
+    padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.15s;
+  }
+  .copy-btn:hover { color: var(--text); }
+
+  /* HIGHLIGHT */
+  .hl-blue { color: #79c0ff; }
+  .hl-green { color: #7ee787; }
+  .hl-orange { color: #ffa657; }
+  .hl-purple { color: #d2a8ff; }
+  .hl-gray { color: #8b949e; }
+
+  /* ALERT */
+  .alert {
+    padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 1rem;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .alert-info { background: rgba(24,119,242,0.1); border: 1px solid rgba(24,119,242,0.25); color: #90c4ff; }
+  .alert-success { background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.25); color: #5ce8cc; }
+  .alert-warn { background: rgba(255,179,0,0.1); border: 1px solid rgba(255,179,0,0.25); color: #ffc74d; }
+
+  /* ACTION ROW */
+  .action-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  /* KEY FIELD */
+  .key-wrap { position: relative; }
+  .key-wrap input { padding-right: 80px; }
+  .key-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--muted); cursor: pointer; background: var(--surface2); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; }
+  .key-toggle:hover { color: var(--text); }
+
+  /* STATUS */
+  .status-row { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 10px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-green { background: #31a24c; animation: pulse 2s infinite; }
+  .dot-red { background: #ff4f6a; }
+  .dot-gray { background: #666; }
+
+  /* FLOW DIAGRAM */
+  .flow { display: flex; align-items: center; gap: 0; margin: 1.5rem 0; overflow-x: auto; }
+  .flow-node {
+    flex-shrink: 0; background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: var(--radius-sm); padding: 10px 14px; text-align: center; min-width: 100px;
+  }
+  .flow-node .icon { font-size: 20px; margin-bottom: 4px; }
+  .flow-node .label { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .flow-arrow { color: var(--muted); padding: 0 6px; font-size: 18px; flex-shrink: 0; }
+
+  /* FOOTER */
+  .footer { text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  .footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .steps { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .faq-item { grid-template-columns: 1fr auto; }
+    .faq-item input:last-of-type { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge"><span></span> 100% Free · No monthly fees</div>
+    <h1>Your Facebook Page<br><span class="blue">AI Auto-Reply</span> Bot<br>Built <span class="teal">in Minutes</span></h1>
+    <p>Answer every customer instantly — even while you sleep. Powered by Claude AI. Completely free to self-host.</p>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body"><h3>Configure</h3><p>Set your store info, FAQs, and tone in the Setup tab</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body"><h3>Test Live</h3><p>Chat with your bot in the Simulator tab before going live</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body"><h3>Deploy Free</h3><p>Copy the webhook script to Render or Railway — both free</p></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('setup', this)">⚙️ Setup</button>
+    <button class="tab" onclick="switchTab('test', this)">💬 Simulator</button>
+    <button class="tab" onclick="switchTab('deploy', this)">🚀 Deploy</button>
+    <button class="tab" onclick="switchTab('guide', this)">📖 Full Guide</button>
+  </div>
+
+  <!-- ===== SETUP PANEL ===== -->
+  <div class="panel active" id="panel-setup">
+
+    <div class="card">
+      <div class="card-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 8v4l3 3"/></svg>
+        API Key (stored only in your browser)
+      </div>
+      <div class="form-row">
+        <label>Anthropic API Key — get yours free at console.anthropic.com</label>
+        <div class="key-wrap">
+          <input type="password" id="apiKey" placeholder="sk-ant-api03-..." />
+          <span class="key-toggle" onclick="toggleKey()">Show</span>
+        </div>
+      </div>
+      <div class="alert alert-info">
+        🔒 Your key is saved in localStorage — it never leaves your browser or goes to any server.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏪 Store Information</div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Store / Page Name</label>
+          <input type="text" id="storeName" placeholder="e.g. Zara Boutique" />
+        </div>
+        <div class="form-row">
+          <label>Language to reply in</label>
+          <input type="text" id="lang" placeholder="e.g. English, Arabic, French" value="English" />
+        </div>
+      </div>
+      <div class="form-row">
+        <label>What do you sell?</label>
+        <input type="text" id="storeDesc" placeholder="e.g. Women's clothing, bags and accessories — shipped across Egypt" />
+      </div>
+      <div class="form-row">
+        <label>Business hours</label>
+        <input type="text" id="hours" placeholder="e.g. Mon–Sat 9am–9pm, Sunday closed" />
+      </div>
+      <div class="form-row">
+        <label>Ordering process (how customers place orders)</label>
+        <textarea id="orderProcess" placeholder="e.g. Customer tells us the item name, size and color. We send them a payment link via Vodafone Cash or bank transfer. Order is shipped within 2–3 days."></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💬 Bot Personality</div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Tone</label>
+          <select id="tone">
+            <option value="friendly and warm">Friendly & Warm</option>
+            <option value="professional and formal">Professional & Formal</option>
+            <option value="casual and fun">Casual & Fun</option>
+            <option value="concise and efficient">Concise & Efficient</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Use emojis?</label>
+          <select id="emoji">
+            <option value="yes, use relevant emojis occasionally">Yes — occasionally</option>
+            <option value="no emojis at all">No emojis</option>
+            <option value="yes, use emojis freely">Yes — frequently</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Greeting message (first message to every new visitor)</label>
+        <textarea id="greeting" placeholder="Hi! 👋 Welcome to [Store]. How can I help you today? Feel free to ask about our products, prices, or how to place an order!"></textarea>
+      </div>
+      <div class="form-row">
+        <label>Fallback message (when bot doesn't know the answer)</label>
+        <input type="text" id="fallback" placeholder="Great question! Our team will reply within 2 hours. You can also call us at [number]. 🙏" />
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">❓ FAQs Your Bot Should Know</div>
+      <div id="faqList">
+        <div class="faq-item">
+          <input type="text" placeholder="Question..." value="Do you offer free delivery?" />
+          <input type="text" placeholder="Answer..." value="Yes! Free delivery on all orders above 500 EGP." />
+          <button class="btn-icon" onclick="this.parentElement.remove()" title="Remove">✕</button>
+        </div>
+        <div class="faq-item">
+          <input type="text" placeholder="Question..." value="How long does delivery take?" />
+          <input type="text" placeholder="Answer..." value="2–4 business days within the city, 4–7 days outside." />
+          <button class="btn-icon" onclick="this.parentElement.remove()" title="Remove">✕</button>
+        </div>
+        <div class="faq-item">
+          <input type="text" placeholder="Question..." value="Can I return an item?" />
+          <input type="text" placeholder="Answer..." value="Yes, returns accepted within 7 days if the item is unused and in original packaging." />
+          <button class="btn-icon" onclick="this.parentElement.remove()" title="Remove">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" style="margin-top:10px" onclick="addFaq()">+ Add FAQ</button>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="saveConfig(); switchTabByName('test')">Save & Test Bot →</button>
+      <button class="btn btn-outline" onclick="saveConfig()">💾 Save Config</button>
+      <span id="saveMsg" style="font-size:13px;color:var(--success);display:none">✓ Saved!</span>
+    </div>
+
+  </div><!-- /setup -->
+
+  <!-- ===== TEST PANEL ===== -->
+  <div class="panel" id="panel-test">
+
+    <div class="alert alert-info" style="margin-bottom:1rem">
+      💡 This is a live preview — type any customer message below and see exactly how your bot replies.
+    </div>
+
+    <div class="chat-window">
+      <div class="chat-header">
+        <div class="chat-avatar">🛍</div>
+        <div class="chat-info">
+          <h4 id="chatStoreName">Your Store</h4>
+          <p>Facebook Page · Messenger</p>
+        </div>
+        <div class="online-dot"></div>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg-wrap">
+          <div class="msg-avatar" style="background:#e0e0e0">🤖</div>
+          <div class="bubble bot" id="greetingBubble">Hi! 👋 How can I help you today?</div>
+        </div>
+      </div>
+      <div class="chat-input-bar">
+        <input type="text" id="chatInput" placeholder="Type a customer message..." onkeydown="if(event.key==='Enter')sendMsg()" />
+        <button class="send-btn" onclick="sendMsg()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-top:1rem">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:8px">Quick test messages:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="quickTest('What products do you have?')">What products do you have?</button>
+        <button class="btn btn-outline btn-sm" onclick="quickTest('How do I place an order?')">How do I order?</button>
+        <button class="btn btn-outline btn-sm" onclick="quickTest('Do you deliver to my city?')">Do you deliver?</button>
+        <button class="btn btn-outline btn-sm" onclick="quickTest('What are your prices?')">What are prices?</button>
+        <button class="btn btn-outline btn-sm" onclick="quickTest('مرحبا، كيف أطلب منتج؟')">Arabic message</button>
+      </div>
+    </div>
+
+    <div class="action-row" style="margin-top:1.5rem">
+      <button class="btn btn-outline" onclick="clearChat()">🗑 Clear Chat</button>
+      <button class="btn btn-primary" onclick="switchTabByName('deploy')">Ready! Deploy for Free →</button>
+    </div>
+
+  </div><!-- /test -->
+
+  <!-- ===== DEPLOY PANEL ===== -->
+  <div class="panel" id="panel-deploy">
+
+    <div class="alert alert-success" style="margin-bottom:1.5rem">
+      🎉 The bot below is 100% free to host. No credit card needed for any of these steps.
+    </div>
+
+    <!-- HOW IT FLOWS -->
+    <div class="card">
+      <div class="card-title">🔄 How it works</div>
+      <div class="flow">
+        <div class="flow-node"><div class="icon">👤</div><div class="label">Customer DMs<br>your page</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node"><div class="icon">📘</div><div class="label">Facebook<br>Webhook</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node"><div class="icon">🖥</div><div class="label">Your Free<br>Server</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node"><div class="icon">🤖</div><div class="label">Claude AI<br>API</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node"><div class="icon">💬</div><div class="label">Instant<br>Reply Sent</div></div>
+      </div>
+    </div>
+
+    <!-- SERVER CODE -->
+    <div class="card">
+      <div class="card-title">📄 Step 1 — Your bot server code (Node.js)</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">Click "Generate Code" to create a personalized server file with your config already baked in.</p>
+      <button class="btn btn-primary" onclick="generateCode()">⚡ Generate My Bot Code</button>
+      <div id="codeSection" style="display:none;margin-top:1.25rem">
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCode()">Copy</button>
+          <div class="code-block" id="generatedCode"></div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px">Save this as <code style="background:var(--surface2);padding:2px 6px;border-radius:4px">index.js</code> on your computer.</p>
+      </div>
+    </div>
+
+    <!-- PACKAGE JSON -->
+    <div class="card">
+      <div class="card-title">📦 Step 2 — package.json</div>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyText(pkgJson)">Copy</button>
+        <div class="code-block" id="pkgBlock"></div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px">Save this as <code style="background:var(--surface2);padding:2px 6px;border-radius:4px">package.json</code> in the same folder.</p>
+    </div>
+
+    <!-- DEPLOY STEPS -->
+    <div class="card">
+      <div class="card-title">🚀 Step 3 — Deploy free on Render.com</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="background:var(--accent);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px">1</div>
+          <div>
+            <p style="font-size:14px;font-weight:500">Create a GitHub repo</p>
+            <p style="font-size:13px;color:var(--muted)">Go to <a href="https://github.com" target="_blank" style="color:var(--accent)">github.com</a> → New repo → Upload your <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:12px">index.js</code> and <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:12px">package.json</code></p>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="background:var(--accent);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px">2</div>
+          <div>
+            <p style="font-size:14px;font-weight:500">Deploy on Render (free)</p>
+            <p style="font-size:13px;color:var(--muted)">Go to <a href="https://render.com" target="_blank" style="color:var(--accent)">render.com</a> → New → Web Service → Connect your GitHub repo → Build: <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:12px">npm install</code>, Start: <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:12px">node index.js</code>. Choose the free tier.</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="background:var(--accent);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px">3</div>
+          <div>
+            <p style="font-size:14px;font-weight:500">Add environment variables on Render</p>
+            <p style="font-size:13px;color:var(--muted)">In your Render service → Environment → Add:</p>
+            <div style="margin-top:6px;display:flex;flex-direction:column;gap:4px">
+              <code style="background:var(--surface2);padding:4px 10px;border-radius:4px;font-size:12px">ANTHROPIC_API_KEY = your-key-here</code>
+              <code style="background:var(--surface2);padding:4px 10px;border-radius:4px;font-size:12px">FB_PAGE_TOKEN = your-facebook-page-token</code>
+              <code style="background:var(--surface2);padding:4px 10px;border-radius:4px;font-size:12px">FB_VERIFY_TOKEN = any-secret-string-you-choose</code>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="background:var(--accent);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px">4</div>
+          <div>
+            <p style="font-size:14px;font-weight:500">Connect to your Facebook Page</p>
+            <p style="font-size:13px;color:var(--muted)">Go to <a href="https://developers.facebook.com" target="_blank" style="color:var(--accent)">developers.facebook.com</a> → Your App → Messenger → Webhooks → Add your Render URL as: <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:12px">https://your-app.onrender.com/webhook</code>. Use your FB_VERIFY_TOKEN for verification. Subscribe to <b>messages</b>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-warn">
+      ⚠️ On Render's free tier, the server sleeps after 15 min of inactivity. Set up a free uptime monitor at <a href="https://uptimerobot.com" target="_blank" style="color:inherit;text-decoration:underline">uptimerobot.com</a> to ping your URL every 5 minutes — this keeps it awake 24/7 for free.
+    </div>
+
+  </div><!-- /deploy -->
+
+  <!-- ===== GUIDE PANEL ===== -->
+  <div class="panel" id="panel-guide">
+
+    <div class="card">
+      <div class="card-title">🔑 Getting Your Anthropic API Key (Free)</div>
+      <ol style="padding-left:1.2rem;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted)">
+        <li>Go to <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a></li>
+        <li>Sign up for a free account (no credit card needed to start)</li>
+        <li>Go to <b style="color:var(--text)">API Keys</b> → <b style="color:var(--text)">Create Key</b></li>
+        <li>Copy the key and paste it in the Setup tab above</li>
+        <li>Anthropic gives free credits to new accounts — enough to test and launch</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📘 Getting Your Facebook Page Token</div>
+      <ol style="padding-left:1.2rem;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--muted)">
+        <li>Go to <a href="https://developers.facebook.com" target="_blank" style="color:var(--accent)">developers.facebook.com</a> and log in</li>
+        <li>Click <b style="color:var(--text)">My Apps</b> → <b style="color:var(--text)">Create App</b> → choose <b style="color:var(--text)">Business</b></li>
+        <li>Add the <b style="color:var(--text)">Messenger</b> product to your app</li>
+        <li>Under Messenger settings → <b style="color:var(--text)">Access Tokens</b> → select your Facebook Page</li>
+        <li>Click <b style="color:var(--text)">Generate Token</b> and copy it — this is your FB_PAGE_TOKEN</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💰 Cost Estimate (Very Low)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;text-align:center">
+          <div style="font-size:22px;font-weight:700;font-family:var(--font-head);color:var(--accent2)">~$0.001</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Per conversation<br>(avg 5 messages)</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;text-align:center">
+          <div style="font-size:22px;font-weight:700;font-family:var(--font-head);color:var(--accent2)">~$1</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">For 1,000 customer<br>conversations</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-top:12px">Anthropic's free tier covers your first $5 of usage — that's roughly 5,000 conversations for free.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🛠 Troubleshooting</div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+        <div><b style="color:var(--text)">Bot not replying?</b> <span style="color:var(--muted)">Check that your Render service is running and the webhook is verified on Facebook Developers dashboard.</span></div>
+        <div><b style="color:var(--text)">Webhook verification fails?</b> <span style="color:var(--muted)">Make sure FB_VERIFY_TOKEN in Render matches exactly what you entered in Facebook's webhook settings.</span></div>
+        <div><b style="color:var(--text)">Server sleeping?</b> <span style="color:var(--muted)">Set up UptimeRobot to ping your URL every 5 minutes — free at uptimerobot.com.</span></div>
+        <div><b style="color:var(--text)">Wrong language?</b> <span style="color:var(--muted)">Update the language field in Setup and regenerate your code.</span></div>
+      </div>
+    </div>
+
+  </div><!-- /guide -->
+
+  <div class="footer">
+    Built with ❤️ using <a href="https://anthropic.com" target="_blank">Claude AI</a> · Self-hosted · Free forever
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let chatHistory = [];
+
+const pkgJson = `{
+  "name": "fb-ai-chatbot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": { "start": "node index.js" },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0",
+    "express": "^4.18.0",
+    "body-parser": "^1.20.0",
+    "node-fetch": "^2.6.9"
+  }
+}`;
+
+document.getElementById('pkgBlock').textContent = pkgJson;
+
+// ── Load saved config ──────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const cfg = JSON.parse(localStorage.getItem('fbBotConfig') || '{}');
+  if (cfg.apiKey) document.getElementById('apiKey').value = cfg.apiKey;
+  if (cfg.storeName) document.getElementById('storeName').value = cfg.storeName;
+  if (cfg.storeDesc) document.getElementById('storeDesc').value = cfg.storeDesc;
+  if (cfg.hours) document.getElementById('hours').value = cfg.hours;
+  if (cfg.orderProcess) document.getElementById('orderProcess').value = cfg.orderProcess;
+  if (cfg.greeting) document.getElementById('greeting').value = cfg.greeting;
+  if (cfg.fallback) document.getElementById('fallback').value = cfg.fallback;
+  if (cfg.lang) document.getElementById('lang').value = cfg.lang;
+  if (cfg.tone) document.getElementById('tone').value = cfg.tone;
+  if (cfg.emoji) document.getElementById('emoji').value = cfg.emoji;
+  if (cfg.faqs) {
+    document.getElementById('faqList').innerHTML = '';
+    cfg.faqs.forEach(f => addFaqWithValues(f.q, f.a));
+  }
+  updateGreetingBubble();
+});
+
+// ── Tabs ──────────────────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'test') refreshTestPanel();
+}
+
+function switchTabByName(name) {
+  const tabs = document.querySelectorAll('.tab');
+  const names = ['setup','test','deploy','guide'];
+  const idx = names.indexOf(name);
+  if (idx !== -1) switchTab(name, tabs[idx]);
+}
+
+// ── Save config ───────────────────────────────────────────────────────────
+function saveConfig() {
+  const cfg = getConfig();
+  localStorage.setItem('fbBotConfig', JSON.stringify(cfg));
+  const msg = document.getElementById('saveMsg');
+  msg.style.display = 'inline';
+  setTimeout(() => msg.style.display = 'none', 2000);
+}
+
+function getConfig() {
+  return {
+    apiKey: document.getElementById('apiKey').value.trim(),
+    storeName: document.getElementById('storeName').value.trim(),
+    storeDesc: document.getElementById('storeDesc').value.trim(),
+    hours: document.getElementById('hours').value.trim(),
+    orderProcess: document.getElementById('orderProcess').value.trim(),
+    greeting: document.getElementById('greeting').value.trim(),
+    fallback: document.getElementById('fallback').value.trim(),
+    lang: document.getElementById('lang').value.trim() || 'English',
+    tone: document.getElementById('tone').value,
+    emoji: document.getElementById('emoji').value,
+    faqs: getFaqs()
+  };
+}
+
+function getFaqs() {
+  return Array.from(document.querySelectorAll('.faq-item')).map(row => {
+    const ins = row.querySelectorAll('input');
+    return { q: ins[0].value.trim(), a: ins[1].value.trim() };
+  }).filter(f => f.q && f.a);
+}
+
+function addFaq() { addFaqWithValues('', ''); }
+
+function addFaqWithValues(q, a) {
+  const div = document.createElement('div');
+  div.className = 'faq-item';
+  div.innerHTML = `<input type="text" placeholder="Question..." value="${esc(q)}" /><input type="text" placeholder="Answer..." value="${esc(a)}" /><button class="btn-icon" onclick="this.parentElement.remove()" title="Remove">✕</button>`;
+  document.getElementById('faqList').appendChild(div);
+}
+
+function esc(s) { return (s||'').replace(/"/g,'&quot;'); }
+
+// ── Key toggle ────────────────────────────────────────────────────────────
+function toggleKey() {
+  const inp = document.getElementById('apiKey');
+  const btn = document.querySelector('.key-toggle');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = 'Hide'; }
+  else { inp.type = 'password'; btn.textContent = 'Show'; }
+}
+
+// ── Greeting bubble ───────────────────────────────────────────────────────
+function updateGreetingBubble() {
+  const g = document.getElementById('greeting').value.trim();
+  const sn = document.getElementById('storeName').value.trim() || 'Our Store';
+  document.getElementById('chatStoreName').textContent = sn;
+  document.getElementById('greetingBubble').textContent = g || `Hi! 👋 Welcome to ${sn}. How can I help you today?`;
+}
+
+function refreshTestPanel() {
+  updateGreetingBubble();
+  clearChat();
+}
+
+// ── Build system prompt ───────────────────────────────────────────────────
+function buildSystemPrompt(cfg) {
+  const faqBlock = cfg.faqs.length
+    ? 'FAQs to answer accurately:\n' + cfg.faqs.map(f => `Q: ${f.q}\nA: ${f.a}`).join('\n\n')
+    : '';
+  return `You are a helpful customer service AI assistant for "${cfg.storeName || 'our store'}", an online e-commerce store that sells: ${cfg.storeDesc || 'various products'}.
+
+LANGUAGE: Always reply in ${cfg.lang}. If the customer writes in a different language, still reply in ${cfg.lang} (unless ${cfg.lang} is "same as customer", then match their language).
+
+TONE: Be ${cfg.tone}. ${cfg.emoji}.
+
+STORE INFO:
+- Business hours: ${cfg.hours || 'Not specified'}
+- How to order: ${cfg.orderProcess || 'Contact us for ordering details'}
+
+${faqBlock}
+
+RULES:
+- Keep replies concise (2-4 sentences max) and helpful
+- If you don't know the answer, say: "${cfg.fallback || 'Our team will reply shortly!'}"
+- Never make up prices, stock levels, or delivery times you are not sure about
+- Focus only on customer service — don't discuss unrelated topics
+- If a customer wants to order, guide them through the ordering process step by step`;
+}
+
+// ── Chat simulator ────────────────────────────────────────────────────────
+async function sendMsg() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  const cfg = getConfig();
+
+  appendMsg(msg, 'user');
+  chatHistory.push({ role: 'user', content: msg });
+
+  const typingId = appendTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': cfg.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        system: buildSystemPrompt(cfg),
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    removeTyping(typingId);
+    if (!res.ok) {
+      const errMsg = data.error?.message || `API error ${res.status}`;
+      appendMsg(`⚠️ ${errMsg}`, 'bot');
+      return;
+    }
+    const reply = data.content?.[0]?.text || cfg.fallback || "Our team will reply shortly!";
+    chatHistory.push({ role: 'assistant', content: reply });
+    appendMsg(reply, 'bot');
+  } catch(e) {
+    removeTyping(typingId);
+    appendMsg('⚠️ Could not connect. Check your API key in Setup tab.', 'bot');
+  }
+}
+
+function quickTest(text) {
+  document.getElementById('chatInput').value = text;
+  sendMsg();
+}
+
+function appendMsg(text, who) {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap' + (who === 'user' ? ' user' : '');
+  wrap.innerHTML = who === 'bot'
+    ? `<div class="msg-avatar" style="background:#e0e0e0">🤖</div><div class="bubble bot">${text}</div>`
+    : `<div class="bubble user">${text}</div>`;
+  document.getElementById('chatMessages').appendChild(wrap);
+  document.getElementById('chatMessages').scrollTop = 99999;
+}
+
+function appendTyping() {
+  const id = 'typing-' + Date.now();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap'; wrap.id = id;
+  wrap.innerHTML = `<div class="msg-avatar" style="background:#e0e0e0">🤖</div><div class="typing"><span></span><span></span><span></span></div>`;
+  document.getElementById('chatMessages').appendChild(wrap);
+  document.getElementById('chatMessages').scrollTop = 99999;
+  return id;
+}
+
+function removeTyping(id) { document.getElementById(id)?.remove(); }
+
+function clearChat() {
+  chatHistory = [];
+  const cfg = getConfig();
+  const sn = cfg.storeName || 'Our Store';
+  const g = cfg.greeting || `Hi! 👋 Welcome to ${sn}. How can I help you today?`;
+  document.getElementById('chatMessages').innerHTML = `
+    <div class="msg-wrap">
+      <div class="msg-avatar" style="background:#e0e0e0">🤖</div>
+      <div class="bubble bot">${g}</div>
+    </div>`;
+}
+
+// ── Generate Code ─────────────────────────────────────────────────────────
+function generateCode() {
+  const cfg = getConfig();
+  const systemPrompt = buildSystemPrompt(cfg).replace(/`/g, '\\`').replace(/\$/g, '\\$');
+  const code = `// =============================================
+// Facebook AI Chatbot — Generated by FB Bot Builder
+// Store: ${cfg.storeName || 'My Store'}
+// =============================================
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const fetch = require('node-fetch');
+const Anthropic = require('@anthropic-ai/sdk');
+
+const app = express();
+app.use(bodyParser.json());
+
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const PAGE_TOKEN = process.env.FB_PAGE_TOKEN;
+const VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
+
+// In-memory conversation history (per user)
+const conversations = {};
+
+const SYSTEM_PROMPT = \`${systemPrompt}\`;
+
+// ── Webhook Verification ──────────────────
+app.get('/webhook', (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+    console.log('Webhook verified!');
+    res.status(200).send(challenge);
+  } else {
+    res.sendStatus(403);
+  }
+});
+
+// ── Receive Messages ──────────────────────
+app.post('/webhook', async (req, res) => {
+  const body = req.body;
+  if (body.object !== 'page') return res.sendStatus(404);
+
+  res.sendStatus(200); // Always ack immediately
+
+  for (const entry of body.entry || []) {
+    for (const event of entry.messaging || []) {
+      if (!event.message || event.message.is_echo) continue;
+      const senderId = event.sender.id;
+      const text = event.message.text;
+      if (!text) continue;
+
+      // Build conversation history
+      if (!conversations[senderId]) conversations[senderId] = [];
+      conversations[senderId].push({ role: 'user', content: text });
+
+      // Keep last 10 messages only
+      if (conversations[senderId].length > 10)
+        conversations[senderId] = conversations[senderId].slice(-10);
+
+      try {
+        const response = await anthropic.messages.create({
+          model: 'claude-haiku-4-5-20251001', // Faster & cheaper for production
+          max_tokens: 300,
+          system: SYSTEM_PROMPT,
+          messages: conversations[senderId]
+        });
+
+        const reply = response.content[0].text;
+        conversations[senderId].push({ role: 'assistant', content: reply });
+
+        await sendMessage(senderId, reply);
+      } catch (err) {
+        console.error('AI error:', err.message);
+        await sendMessage(senderId, '${cfg.fallback || 'Our team will reply shortly!'}');
+      }
+    }
+  }
+});
+
+// ── Send Message via Graph API ─────────────
+async function sendMessage(recipientId, text) {
+  const url = \`https://graph.facebook.com/v19.0/me/messages?access_token=\${PAGE_TOKEN}\`;
+  await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      recipient: { id: recipientId },
+      message: { text },
+      messaging_type: 'RESPONSE'
+    })
+  });
+}
+
+// ── Health Check ──────────────────────────
+app.get('/', (req, res) => res.send('Bot is running! ✅'));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(\`Server running on port \${PORT}\`));`;
+
+  document.getElementById('generatedCode').textContent = code;
+  document.getElementById('codeSection').style.display = 'block';
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(document.getElementById('generatedCode').textContent);
+  const btn = document.querySelector('#codeSection .copy-btn');
+  btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+  const btn = document.getElementById('pkgBlock').previousElementSibling;
+  btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000);
+}
+</script>
+</body>
+</html>
