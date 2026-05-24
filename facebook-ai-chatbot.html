@@ -301,9 +301,9 @@
         API Key (stored only in your browser)
       </div>
       <div class="form-row">
-        <label>Anthropic API Key — get yours free at console.anthropic.com</label>
+        <label>Gemini API Key — get yours free at aistudio.google.com</label>
         <div class="key-wrap">
-          <input type="password" id="apiKey" placeholder="sk-ant-api03-..." />
+          <input type="password" id="apiKey" placeholder="AIza..." />
           <span class="key-toggle" onclick="toggleKey()">Show</span>
         </div>
       </div>
@@ -518,7 +518,7 @@
             <p style="font-size:14px;font-weight:500">Add environment variables on Render</p>
             <p style="font-size:13px;color:var(--muted)">In your Render service → Environment → Add:</p>
             <div style="margin-top:6px;display:flex;flex-direction:column;gap:4px">
-              <code style="background:var(--surface2);padding:4px 10px;border-radius:4px;font-size:12px">ANTHROPIC_API_KEY = your-key-here</code>
+              <code style="background:var(--surface2);padding:4px 10px;border-radius:4px;font-size:12px">GEMINI_API_KEY = your-key-here</code>
               <code style="background:var(--surface2);padding:4px 10px;border-radius:4px;font-size:12px">FB_PAGE_TOKEN = your-facebook-page-token</code>
               <code style="background:var(--surface2);padding:4px 10px;border-radius:4px;font-size:12px">FB_VERIFY_TOKEN = any-secret-string-you-choose</code>
             </div>
@@ -608,7 +608,7 @@ const pkgJson = `{
   "main": "index.js",
   "scripts": { "start": "node index.js" },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.20.0",
+    "@google/generative-ai": "^0.21.0",
     "express": "^4.18.0",
     "body-parser": "^1.20.0",
     "node-fetch": "^2.6.9"
@@ -756,14 +756,17 @@ async function sendMsg() {
   const typingId = appendTyping();
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const geminiHistory = chatHistory.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${cfg.apiKey}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': cfg.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        system: buildSystemPrompt(cfg),
-        messages: chatHistory
+        system_instruction: { parts: [{ text: buildSystemPrompt(cfg) }] },
+        contents: geminiHistory,
+        generationConfig: { maxOutputTokens: 300 }
       })
     });
     const data = await res.json();
@@ -773,7 +776,7 @@ async function sendMsg() {
       appendMsg(`⚠️ ${errMsg}`, 'bot');
       return;
     }
-    const reply = data.content?.[0]?.text || cfg.fallback || "Our team will reply shortly!";
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || cfg.fallback || "Our team will reply shortly!";
     chatHistory.push({ role: 'assistant', content: reply });
     appendMsg(reply, 'bot');
   } catch(e) {
@@ -833,12 +836,12 @@ function generateCode() {
 const express = require('express');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
-const Anthropic = require('@anthropic-ai/sdk');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 app.use(bodyParser.json());
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const PAGE_TOKEN = process.env.FB_PAGE_TOKEN;
 const VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
 
@@ -874,23 +877,26 @@ app.post('/webhook', async (req, res) => {
       const text = event.message.text;
       if (!text) continue;
 
-      // Build conversation history
       if (!conversations[senderId]) conversations[senderId] = [];
       conversations[senderId].push({ role: 'user', content: text });
 
-      // Keep last 10 messages only
       if (conversations[senderId].length > 10)
         conversations[senderId] = conversations[senderId].slice(-10);
 
       try {
-        const response = await anthropic.messages.create({
-          model: 'claude-haiku-4-5-20251001', // Faster & cheaper for production
-          max_tokens: 300,
-          system: SYSTEM_PROMPT,
-          messages: conversations[senderId]
+        const model = genAI.getGenerativeModel({
+          model: 'gemini-2.0-flash',
+          systemInstruction: SYSTEM_PROMPT
         });
 
-        const reply = response.content[0].text;
+        const history = conversations[senderId].slice(0, -1).map(m => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }]
+        }));
+
+        const chat = model.startChat({ history });
+        const result = await chat.sendMessage(text);
+        const reply = result.response.text();
         conversations[senderId].push({ role: 'assistant', content: reply });
 
         await sendMessage(senderId, reply);
