@@ -6,12 +6,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
-const Anthropic = require('@anthropic-ai/sdk');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 app.use(bodyParser.json());
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const PAGE_TOKEN = process.env.FB_PAGE_TOKEN;
 const VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
 
@@ -81,14 +81,19 @@ app.post('/webhook', async (req, res) => {
         conversations[senderId] = conversations[senderId].slice(-10);
 
       try {
-        const response = await anthropic.messages.create({
-          model: 'claude-haiku-4-5-20251001', // Faster & cheaper for production
-          max_tokens: 300,
-          system: SYSTEM_PROMPT,
-          messages: conversations[senderId]
+        const model = genAI.getGenerativeModel({
+          model: 'gemini-1.5-flash',
+          systemInstruction: SYSTEM_PROMPT
         });
 
-        const reply = response.content[0].text;
+        const history = conversations[senderId].slice(0, -1).map(m => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }]
+        }));
+
+        const chat = model.startChat({ history });
+        const result = await chat.sendMessage(text);
+        const reply = result.response.text();
         conversations[senderId].push({ role: 'assistant', content: reply });
 
         await sendMessage(senderId, reply);
